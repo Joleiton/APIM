@@ -1,0 +1,4 @@
+.create database joleitonAPIMProd volatile ifnotexists
+#dbcontext joleitonAPIMProd
+.create table QueryResults (operationId:string, Region:string, clientIp:string, responseCode:long, backendResponseCode:long, url:string, backendUrl:string, errorMessage:string, exception:string, count_:long)
+.ingest inline into table QueryResults  [UEsDBBQAAAAIABdOjk14+7g+wAAAANoBAAAOAAAAY29tcHJlc3NlZC5jc3bdj8FqwzAQRO+F/EPROUgrWU6t3gJJbzmFfsB6vYpFnVhIchry9bXb0GM/oDAsM+zwYETddsa9VB5c6x0DNQ1pV/mNWIs95vL8fpydddLYRhoN0szRAPzevpSYX5XCGCRRjzfinCWNZxWzOntUVy1h+X6HxKeQCyfudnwNc/VBmAExjR1P+ZQw9jRMS0vLz4+IN7zLYSQc1HYqPV9KICxhvKjD2/bIacH8yf+RFqsnUTsPUFn7GNtubN0yE/zHsV9QSwECFAAUAAAACAAXTo5NePu4PsAAAADaAQAADgAAAAAAAAAAAAAAAAAAAAAAY29tcHJlc3NlZC5jc3ZQSwUGAAAAAAEAAQA8AAAA7AAAAAAA] with @'{"compressed":"true"}'
