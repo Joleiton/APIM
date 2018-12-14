@@ -1,4 +1,290 @@
-.create database joleitonAPIMProd volatile ifnotexists
-#dbcontext joleitonAPIMProd
-.create table QueryResults (operationId:string, Region:string, clientIp:string, responseCode:long, backendResponseCode:long, url:string, backendUrl:string, errorMessage:string, exception:string, count_:long)
-.ingest inline into table QueryResults  [UEsDBBQAAAAIABdOjk14+7g+wAAAANoBAAAOAAAAY29tcHJlc3NlZC5jc3bdj8FqwzAQRO+F/EPROUgrWU6t3gJJbzmFfsB6vYpFnVhIchry9bXb0GM/oDAsM+zwYETddsa9VB5c6x0DNQ1pV/mNWIs95vL8fpydddLYRhoN0szRAPzevpSYX5XCGCRRjzfinCWNZxWzOntUVy1h+X6HxKeQCyfudnwNc/VBmAExjR1P+ZQw9jRMS0vLz4+IN7zLYSQc1HYqPV9KICxhvKjD2/bIacH8yf+RFqsnUTsPUFn7GNtubN0yE/zHsV9QSwECFAAUAAAACAAXTo5NePu4PsAAAADaAQAADgAAAAAAAAAAAAAAAAAAAAAAY29tcHJlc3NlZC5jc3ZQSwUGAAAAAAEAAQA8AAAA7AAAAAAA] with @'{"compressed":"true"}'
+//
+
+
+let serviceName = "prod-apim";
+ProxyRequest
+| where DeploymentName =~ tolower(strcat(serviceName, ".azure-api.net"))
+| where PreciseTimeStamp  > datetime(2018-12-13 00:00:00) and PreciseTimeStamp  < datetime(2018-12-14 00:00:00)  
+| where EventId == 205
+| where url == "https://api.cchaxcess.com/ps/mfa/v1.0/api/mfa/registeredDevices" 
+| where responseCode == 200
+| summarize count() by operationId ,Region, clientIp, responseCode ,backendResponseCode ,url,backendUrl  , errorMessage,exception  
+
+
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+let serviceName = "prod-apim";
+ProxyRequest
+| where DeploymentName =~ tolower(strcat(serviceName, ".azure-api.net"))
+//| where PreciseTimeStamp  > datetime(2018-12-03 15:30:00) and PreciseTimeStamp  < datetime(2018-12-03 15:40:00)  
+//| where method == "GET"
+| where PreciseTimeStamp > ago(1d)
+//| where EventId != 205
+| where responseCode == 401
+//| where url ==  "https://api.cchaxcess.com/ps/mfa/v1.0/api/mfa/registeredDevices"
+//| where url contains "azure-apigw-oz.capgroup.com"
+//| project PreciseTimeStamp, DeploymentName, RelatedActivityId, apiId, operationId, tags, productId, userId, clientIp, method, url, responseCode, backendMethod, backendUrl, backendResponseCode, requestSize, responseSize, totalTime, backendTime, clientTime, errorSource, errorReason, errorMessage, errorScope, errorSection, errorElapsed
+| summarize count() by operationId ,method, responseCode ,backendResponseCode ,url,backendUrl  , errorMessage,exception  
+//| summarize count() by bin(TI
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+https://gestionauthentification.ti.fondsdev.com/v1/ti/securite/authentification/authentifier
+
+let serviceName = "prod-apim";
+ProxyRequest
+| where DeploymentName =~ tolower(strcat(serviceName, ".azure-api.net"))
+//| where PreciseTimeStamp  > datetime(2018-12-03 15:30:00) and PreciseTimeStamp  < datetime(2018-12-03 15:40:00)  
+//| where method == "GET"
+| where PreciseTimeStamp > ago(1d)
+//| where responseCode != 401
+| where url ==  "https://api.cchaxcess.com/ps/mfa/v1.0/api/mfa/registeredDevices"
+//| where url contains "azure-apigw-oz.capgroup.com"
+//| project PreciseTimeStamp, DeploymentName, RelatedActivityId, apiId, operationId, tags, productId, userId, clientIp, method, url, responseCode, backendMethod, backendUrl, backendResponseCode, requestSize, responseSize, totalTime, backendTime, clientTime, errorSource, errorReason, errorMessage, errorScope, errorSection, errorElapsed
+| summarize count() by clientIp,operationId ,method, responseCode ,backendResponseCode ,url, errorMessage,exception  
+//| summarize count() by bin(TIMESTAMP, 5m),responseCodeMESTAMP, 5m),responseCode
+| render timechart  
+
+
+
+let serviceName = "owenscorning-devtest";
+ProxyRequest
+| where DeploymentName =~ strcat(serviceName, ".azure-api.net")
+| where TIMESTAMP > ago(90d)
+//where RelatedActivityId == "3ebec5c8-7733-4c7d-9296-428dcfa95f41"
+//| where EventId == 205
+//| where backendUrl == "https://user-profile-proxy-prod.cl-prod01.cf.ford.com/api/sessions/guid"
+//| where backendResponseCode == 0
+| where responseCode >= 500
+///| where errorReason == "BackendConnectionFailure"
+//| where Region == "East US"
+| summarize count() by bin(TIMESTAMP, 5m)
+| render timechart  
+
+
+//**********************************************************************************************************
+
+
+https://vehicle-capability-service-prod.cl-prod01.cf.ford.com/api/capability/v1/vehicles/WF0SXXWPGSJR76555
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+let serviceName = "azure-apigw-snp";
+ResourceProvider 
+| where DeploymentName =~ tolower(strcat(serviceName, ".azure-api.net"))
+// | where Tenant == "cool"
+| where PreciseTimeStamp < ago(1d)
+| limit 10
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+let serviceName = "azure-apigw-snp";
+
+ApiSvcHost 
+| where DeploymentName =~ tolower(strcat(serviceName, ".azure-api.net"))
+| where PreciseTimeStamp < ago(1d)
+
+
+//
+    //This table contains the events emitted by the bootstrapper code. So if you are having trouble to any component of the API Management service this is a table to look up. 
+    //Specify the service name to narrow search using ‘DeploymentName’ field. You can also use ‘Level’ to narrow the search.
+    //For example ‘Level<=3’ will only list warnings, errors and critical events. There is an ‘eventType’ field. Some of the values for this field are:
+    //BootStrapperHeartbeat – indicates the deployment is responsive. If it’s missing then it could indicate role is restarting.
+    //RemoteRedisNodes – for events relating to redis cache.
+    //Below are the DGrep setting to use.
+    //Endpoint: Diagnostics PROD Namespace: Api Events to Search: ApiSvcHost
+//
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+let serviceName = "cool";
+PortalMetrics
+| where DeploymentName  =~ tolower(strcat(serviceName, ".azure-api.net"))
+|limit 100 
+
+//Latency in the portal for a specific page. 
+//You can narrow down the results by filtering ‘ServiceName = "mysvc.portal.azure-api.net " ‘. 
+//There ‘servicename’ is set to ‘mysvc.portal.azure-api.net’ for external requests and set to ‘127.0.0.1’ for internal requests. 
+//Internal requests are used to warm up the portal and keep it responsive. Below are the DGrep setting to use.
+//
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+let serviceName = "cool";
+PortalMetrics
+| where DeploymentName  =~ tolower(strcat(serviceName, ".azure-api.net"))
+|limit 100 
+
+//Latency in the portal for a specific page. 
+//You can narrow down the results by filtering ‘ServiceName = "mysvc.portal.azure-api.net " ‘. 
+//There ‘servicename’ is set to ‘mysvc.portal.azure-api.net’ for external requests and set to ‘127.0.0.1’ for internal requests. 
+//Internal requests are used to warm up the portal and keep it responsive. Below are the DGrep setting to use.
+//
+
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+// TABLE CustomerProxyDiagnosticLog
+
+//This table is primarily used to provide Proxy Log (Gateway Log) data for the Azure Monitor diagnostic logging feature and holds the following information about each API called. 
+//Client HTTP Method, Client URL, Request Size, Time Spent in APIM Service, Backend HTTP Method, Backend URL Called, Backend HTTP Response code, APIM Response Code, Response Size, Is Response Cached?
+//You can narrow down the results by filtering ‘DeploymentName = "mysvc.azure-api.net "’ or ‘resourceId = <ARM resourceId of APIM Instance>’. Below are the DGrep setting to use.
+//Endpoint: Diagnostics PROD Namespace: Api Events to Search: CustomerProxyDiagnosticLog
+
+let serviceName = "azure-apigw-oz";
+
+    CustomerProxyDiagnosticLog
+    |   where DeploymentName  =~ tolower(strcat(serviceName, ".azure-api.net"))
+
+    
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+// TABLE CustomerProxyMetricsCentralEvent
+
+//This table is primarily used to provide Metrics data for the Azure Monitor diagnostic logging feature and holds a 1 minute aggregation of total, 
+//average, maximum and minimum You can narrow down the results by filtering ‘DeploymentName = "mysvc.azure-api.net "’ ’ or ‘resourceId = <ARM resourceId of APIM Instance>’.
+//Below are the DGrep setting to use.
+//Endpoint: Diagnostics PROD Namespace: Api Events to Search: CustomerProxyMetricsCentralEvent
+
+
+
+let serviceName = "azure-apigw-oz";
+
+    CustomerProxyMetricsCentralEvent
+    //|   where DeploymentName  =~ tolower(strcat(serviceName, ".azure-api.net"))
+    |   limit 100
+
+    
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+// TABLE LogPolicyKpiRaw
+
+//This table provides stats about log-to-eventhub policy that customers use to log extended information about their API calls.
+//You can narrow down the results by filtering ‘DeploymentName = "mysvc.azure-api.net "’. HandlerInfo provides the full URI of Event Hub.
+//Endpoint: Diagnostics PROD Namespace: Api Events to Search: LogPolicyKpiRaw
+
+
+
+
+let serviceName = "cool";
+
+    LogPolicyKpiRaw
+   // |   where DeploymentName  =~ tolower(strcat(serviceName, ".azure-api.net"))
+    |   limit 100
+
+    
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+//=================================================================================================================================================================================================
+
+
+// Event hub
+
+
+
+//**************************************************************************************************************************************************
+// This query gives the KPI statistics for worker doing the pushing of events to EventHub  
+//Run: [Kusto.Explorer] [Kusto.Explorer on SAW] [Kusto.WebExplorer] [Lens] https://apim.kusto.windows.net:443/APIMProd  
+
+LogPolicyKpiRaw 
+//| where PreciseTimeStamp > ago(1d) 
+| where DeploymentName == "azure-apigw-oz.azure-api.net" 
+| project TIMESTAMP, DeploymentName ,  totalLogs , totalSuccessLogs , totalFailedLogs , failedToEnqueueRequests , throughputInKbPerSec = (throughput/(1024)), SizeInMb = (sizeOfBatch/(1024 * 1024)) 
+
+//**************************************************************************************************************************************************  
+  
+ 
+ 
+//**************************************************************************************************************************************************
+//This event is logged if we are unable to send logs to EventHub 
+//Run: [Kusto.Explorer] [Kusto.Explorer on SAW] [Kusto.WebExplorer] [Lens] https://apim.kusto.windows.net:443/APIMProd  
+
+ProxyInfra 
+//| where PreciseTimeStamp  > ago(1d)   
+| where DeploymentName == "azure-apigw-oz.azure-api.net" 
+| where eventType == "FailedToSendLogsToEventHub" 
+| where ChannelName notcontains 
+|limit 100 
+| order by PreciseTimeStamp desc
+//**************************************************************************************************************************************************
+
+
+
+//**************************************************************************************************************************************************
+//This Query tracks all worker status. This is the background worker, which is asynchronously sends logs to event hub. 
+//Run: [Kusto.Explorer] [Kusto.Explorer on SAW] [Kusto.WebExplorer] [Lens] https://apim.kusto.windows.net:443/APIMProd  
+
+ProxyInfra 
+| where DeploymentName == "naapim.azure-api.net"
+//| where  source == "Logger"  
+| where PreciseTimeStamp > ago(1d)   
+//| project PreciseTimeStamp , eventType , message , Level  
+| summarize count() by eventType, source,message
+
+
+|limit 100 ,
+| order by PreciseTimeStamp desc
+//************************************************************************************************************************************************** 
+//____________________________________________________________________________________________________________________________________________________________________________________-
+
+
+
+
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+      
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+let serviceName = "emea-apimdigital-sit";
+ProxyRequest
+| where DeploymentName =~ tolower(strcat(serviceName, ".azure-api.net"))
+| where PreciseTimeStamp  > datetime(2018-12-07 00:00:00) // and PreciseTimeStamp  < datetime(2018-12-07 11:59:59)  
+//| where method == "GET"
+//| where PreciseTimeStamp < ago(1h)
+| where responseCode > 200
+//| where url ==  "https://api.mps.ford.com/api/capability/v1/vehicles/WF0SXXWPGSJR76555"
+//| where url contains "azure-apigw-oz.capgroup.com"
+//| project PreciseTimeStamp, DeploymentName, RelatedActivityId, apiId, operationId, tags, productId, userId, clientIp, method, url, responseCode, backendMethod, backendUrl, backendResponseCode, requestSize, responseSize, totalTime, backendTime, clientTime, errorSource, errorReason, errorMessage, errorScope, errorSection, errorElapsed
+| summarize count() by operationId , responseCode ,backendResponseCode ,backendUrl, errorMessage   
