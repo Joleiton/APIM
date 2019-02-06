@@ -1,0 +1,25 @@
+    <backend>
+      
+            <set-header name="debug" exists-action="override">
+                <value>@(context.Request.Headers.GetValueOrDefault("Content-Length", ""))</value>
+            </set-header>
+ 
+      <set-variable name="body content" value="@(context.Request.Body.As<string>())" />
+
+        <retry condition="@(context.Response.StatusCode == 400 || context.Response.StatusCode == 401)" count="3" interval="3" max-interval="4" delta="10" first-fast-retry="false">
+            <choose>
+                <when condition="@(context.Request.Body != null)">
+                    <set-variable name="body-content" value="@(context.Request.Body.As<string>(preserveContent: false))" />
+                </when>
+            </choose>
+			
+			<!-- A bunch of stuff in here -->
+         
+            <choose>
+                <when condition="@(context.Variables.ContainsKey("body-content") && ((string)context.Variables["body-content"]) != null)">
+                    <set-body>@((string)context.Variables["body-content"])</set-body>
+                </when>
+            </choose>
+            <forward-request />
+        </retry>
+    </backend>
