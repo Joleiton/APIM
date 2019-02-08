@@ -1,0 +1,53 @@
+ 
+  <inbound>
+        <cors>
+            <allowed-origins>
+                <origin>https://prt-qa4-lowes.microsoftcrmportals.com</origin>
+            </allowed-origins>
+            <allowed-methods>
+                <method>GET</method>
+            </allowed-methods>
+            <allowed-headers>
+                <header>*</header>
+            </allowed-headers>
+            <expose-headers>
+                <header>*</header>
+            </expose-headers>
+        </cors>
+        <base />
+        <!--  Sharepoint Token -->
+        <cache-lookup-value default-value="" variable-name="spBearerToken" key="nullbackendtokenkey" />
+        <choose>
+            <when condition="@(String.IsNullOrEmpty((string)context.Variables["spBearerToken"]))">
+                <send-request ignore-error="true" timeout="20" response-variable-name="spBearerTokenResponse" mode="new">
+                    <set-url>https://accounts.accesscontrol.windows.net/bcfa3e87-841e-48c7-983b-584159dd1a69/tokens/OAuth/2</set-url>
+                    <set-method>POST</set-method>
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/x-www-form-urlencoded</value>
+                    </set-header>
+                    <set-body>@{
+                      var spSecretKey = Uri.EscapeDataString("{{sharepoint-client-secret}}");
+                      return $"grant_type=client_credentials&client_id={{sharepoint-client-id}}&client_secret={spSecretKey}&resource={{sharepoint-resource}}";
+                      }</set-body>
+                </send-request>
+                <set-variable value="@( ((IResponse)context.Variables["spBearerTokenResponse"]).Body.As<JObject>())" name="spResponseJson" />
+                <set-variable value="@((string)((JObject)context.Variables["spResponseJson"])["access_token"])" name="spBearerToken" />
+                <set-variable value="@((string)((JObject)context.Variables["spResponseJson"])["expires_in"])" name="spBearerTokenExpiresIn" />
+                <cache-store-value value="@((string)context.Variables["spBearerToken"])" key="backendtokenkey" duration="@(int.Parse((string)context.Variables["spBearerTokenExpiresIn"])-300)" />
+            </when>
+        </choose>
+        <set-header name="SPAuthorization" exists-action="override">
+            <value>@("Bearer " + context.Variables["spBearerToken"])</value>
+        </set-header>
+        <set-backend-service base-url="https://ims-docs-api-qa.azurewebsites.net/ims-docs-api/jobs" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies> 
