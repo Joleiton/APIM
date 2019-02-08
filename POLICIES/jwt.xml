@@ -1,0 +1,24 @@
+ <choose>
+            <when condition="@{ 
+
+            var spns = "c3704f0b-274f-4f13-bd16-b3b27a1401d1,"; 
+            var groups= ",7a207552-b9b5-4332-a5b7-388a581dd970,ce74a6c5-53ea-41b6-becb-98a21a9892ea,"; 
+
+            var jwt = context.Request.Headers.GetValueOrDefault("Authorization","").Split(' ').Last().AsJwt();
+            var spnAppId = jwt?.Claims["appid"][0];
+            var userGroups = jwt?.Claims["groups"][0]; 
+
+            var isValidSpn = spns.Contains(spnAppId);
+            var isValidUser =  userGroups.Any(g => groups.Contains(g));
+            
+            return isValidSpn || isValidUser;
+
+            }">
+                <return-response>
+                    <set-status code="401" reason="Unauthorized" />
+                    <set-header name="WWW-Authenticate" exists-action="override">
+                        <value>Bearer error="Not in list of approved SGs or SPNs"</value>
+                    </set-header>
+                </return-response>
+            </when>
+</choose>
